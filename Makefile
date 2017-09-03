@@ -3,8 +3,8 @@
 numcpus  := $(shell cat /proc/cpuinfo | grep '^processor\s*:' | wc -l)
 version  := $(shell git rev-list --count HEAD).$(shell git rev-parse --short HEAD)
 
-name     := go-boilerplate
-package  := github.com/corpix/$(name)
+name     := gluttony
+package  := github.com/cryptounicorns/gluttony
 
 build    := ./build
 build_id := 0x$(shell echo $(version) | sha1sum | awk '{print $$1}')

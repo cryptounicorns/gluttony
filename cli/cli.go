@@ -9,8 +9,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/urfave/cli"
 
-	"github.com/corpix/go-boilerplate/config"
-	appLogger "github.com/corpix/go-boilerplate/logger"
+	"github.com/cryptounicorns/gluttony/config"
+	appLogger "github.com/cryptounicorns/gluttony/logger"
 )
 
 var (
@@ -49,8 +49,8 @@ func Prerun(c *cli.Context) error {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	app := cli.NewApp()
-	app.Name = "go-boilerplate"
-	app.Usage = "go-boilerplate-description"
+	app.Name = "gluttony"
+	app.Usage = "gluttony-description"
 	app.Action = RootAction
 	app.Flags = RootFlags
 	app.Commands = RootCommands

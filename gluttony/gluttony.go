@@ -3,7 +3,7 @@ package main
 import (
 	"runtime"
 
-	"github.com/corpix/go-boilerplate/cli"
+	"github.com/cryptounicorns/gluttony/cli"
 )
 
 func init() { runtime.GOMAXPROCS(runtime.NumCPU()) }

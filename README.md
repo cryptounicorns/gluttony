@@ -1,7 +1,7 @@
-go-boilerplate
+gluttony
 ---------
 
-[![Build Status](https://travis-ci.org/corpix/go-boilerplate.svg?branch=master)](https://travis-ci.org/corpix/go-boilerplate)
+[![Build Status](https://travis-ci.org/cryptounicorns/gluttony.svg?branch=master)](https://travis-ci.org/cryptounicorns/gluttony)
 
 ## Development
 
@@ -17,19 +17,19 @@ All development process accompanied by containers. Docker containers used for de
 - [rkt](https://github.com/coreos/rkt)
 - [acbuild](https://github.com/containers/build)
 
-### Running go-boilerplate
+### Running gluttony
 
 Build a binary release:
 
 ``` console
 $ GOOS=linux make
-# This will put a binary into ./build/go-boilerplate
+# This will put a binary into ./build/gluttony
 ```
 
 #### Docker
 
 ``` console
-$ docker-compose up go-boilerplate
+$ docker-compose up gluttony
 ```
 
 #### Rkt
@@ -39,5 +39,5 @@ There is no rkt container for this service at this time.
 #### No isolation
 
 ``` console
-$ go run ./go-boilerplate/go-boilerplate.go --debug
+$ go run ./gluttony/gluttony.go --debug
 ```

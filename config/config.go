@@ -8,7 +8,7 @@ import (
 	"github.com/corpix/formats"
 	"github.com/imdario/mergo"
 
-	"github.com/corpix/go-boilerplate/logger"
+	"github.com/cryptounicorns/gluttony/logger"
 )
 
 var (
