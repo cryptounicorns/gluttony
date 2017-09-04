@@ -1,14 +1,21 @@
 version: "2"
 services:
+  influxdb:
+    image: influxdb
+    volumes:
+      - ./influxdb.conf:/etc/influxdb/influxfb.conf:ro
+    ports:
+      - 8086:8086
+
   gluttony:
     image: gluttony
     build: .
     volumes:
-      - ./build/gluttony:/usr/bin/gluttony
-      - ./config.json:/etc/gluttony/config.json
+      - ./build/gluttony:/usr/bin/gluttony:ro
+      - ./config.json:/etc/gluttony/config.json:ro
     command: >-
       /usr/bin/gluttony
       --config /etc/gluttony/config.json
       --debug
-    ports: []
-    links: []
+    links:
+      - influxdb:influxdb
