@@ -3,6 +3,8 @@ gluttony
 
 [![Build Status](https://travis-ci.org/cryptounicorns/gluttony.svg?branch=master)](https://travis-ci.org/cryptounicorns/gluttony)
 
+Receives data from user configured message queue and writes it into user configured persistent storage.
+
 ## Development
 
 All development process accompanied by containers. Docker containers used for development, Rkt containers used for production.
