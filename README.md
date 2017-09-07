@@ -43,3 +43,9 @@ There is no rkt container for this service at this time.
 ``` console
 $ go run ./gluttony/gluttony.go --debug
 ```
+
+## Name origin
+
+> Gluttony can eat virtually __any substance__ in __any amount at super-speed__. He can consume an unlimited amount of matter in any form - solid, liquid or gas without experiencing harmful effects regardless of what he consumes or how much he consumes.
+
+http://fma.wikia.com/wiki/Gluttony
