@@ -1,10 +1,10 @@
 FROM fedora:latest
 
-RUN mkdir                  /etc/go-boilerplate
-ADD ./build/go-boilerplate /usr/bin/go-boilerplate
+RUN mkdir            /etc/gluttony
+ADD ./build/gluttony /usr/bin/gluttony
 
 CMD [                                      \
-    "/usr/bin/go-boilerplate",        \
+    "/usr/bin/gluttony",                   \
     "--config",                            \
-    "/etc/go-boilerplate/config.json" \
+    "/etc/gluttony/config.json"            \
 ]
