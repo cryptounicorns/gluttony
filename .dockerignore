@@ -1,0 +1,7 @@
+Dockerfile
+docker-compose.yaml
+.dockerignore
+.gitignore
+.travis.yaml
+*.md
+*.org
