@@ -9,3 +9,7 @@ import:
   - spew
 - package: github.com/imdario/mergo
 - package: github.com/urfave/cli
+- package: github.com/influxdata/influxdb
+  version: ^1.3.7
+  subpackages:
+  - client/v2

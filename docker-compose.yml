@@ -1,18 +1,21 @@
 version: "2"
 services:
   influxdb:
+    environment:
+      - INFLUXDB_ADMIN_ENABLED=true
     image: influxdb
     volumes:
       - ./influxdb.conf:/etc/influxdb/influxfb.conf:ro
     ports:
       - 8086:8086
+      - 8083:8083
 
   gluttony:
     image: gluttony
     build: .
     volumes:
-      - ./build/gluttony:/usr/bin/gluttony:ro
       - ./config.json:/etc/gluttony/config.json:ro
+      - ./tickers.json:/var/gluttony/tickers.json:ro
     command: >-
       /usr/bin/gluttony
       --config /etc/gluttony/config.json

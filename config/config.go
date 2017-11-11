@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/corpix/formats"
-	"github.com/imdario/mergo"
-
 	"github.com/cryptounicorns/gluttony/logger"
+	"github.com/imdario/mergo"
+	"github.com/influxdata/influxdb/client/v2"
 )
 
 var (
@@ -20,12 +20,34 @@ var (
 	// Default represents default application config.
 	Default = Config{
 		Logger: LoggerConfig,
+		JSONInput: JSONInputConfig{
+			Path: "/var/gluttony/tickers.json",
+		},
+		InfluxDB: InfluxDBConfig{
+			Client: client.HTTPConfig{
+				Addr: "localhost",
+			},
+		},
 	}
 )
 
+// JSONInputConfig input file configuration (sort of)
+// @TODO Extend with fsnotify and/or replace with NSQ consumer
+type JSONInputConfig struct {
+	Path string
+}
+
+// InfluxDBConfig InfluxDB-related configuration
+type InfluxDBConfig struct {
+	Client client.HTTPConfig
+	Batch  client.BatchPointsConfig
+}
+
 // Config represents application configuration structure.
 type Config struct {
-	Logger logger.Config
+	Logger    logger.Config
+	JSONInput JSONInputConfig
+	InfluxDB  InfluxDBConfig
 }
 
 // FromReader fills Config structure `c` passed by reference with

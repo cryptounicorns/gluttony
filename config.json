@@ -2,5 +2,14 @@
     "Logger": {
         "Level": "info",
         "Formatter": "json"
+    },
+    "InfluxDB": {
+        "Client": {
+            "Addr": "http://influxdb:8086"
+        },
+        "Batch": {
+            "Database": "cryptounicorns",
+            "Precision": "s"
+        }
     }
 }
