@@ -2,13 +2,12 @@ version: "2"
 services:
   influxdb:
     environment:
-      - INFLUXDB_ADMIN_ENABLED=true
+      - INFLUXDB_DB=cryptounicorns
     image: influxdb
     volumes:
-      - ./influxdb.conf:/etc/influxdb/influxfb.conf:ro
+      - ./influxdb.conf:/etc/influxdb/influxdb.conf:ro
     ports:
       - 8086:8086
-      - 8083:8083
 
   gluttony:
     image: gluttony
