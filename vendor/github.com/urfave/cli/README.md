@@ -32,6 +32,7 @@ applications in an expressive way.
     + [Alternate Names](#alternate-names)
     + [Ordering](#ordering)
     + [Values from the Environment](#values-from-the-environment)
+    + [Values from files](#values-from-files)
     + [Values from alternate input sources (YAML, TOML, and others)](#values-from-alternate-input-sources-yaml-toml-and-others)
     + [Precedence](#precedence)
   * [Subcommands](#subcommands)
@@ -587,6 +588,41 @@ func main() {
 }
 ```
 
+#### Values from files
+
+You can also have the default value set from file via `FilePath`.  e.g.
+
+<!-- {
+  "args": ["&#45;&#45;help"],
+  "output": "password for the mysql database"
+} -->
+``` go
+package main
+
+import (
+  "os"
+
+  "github.com/urfave/cli"
+)
+
+func main() {
+  app := cli.NewApp()
+
+  app.Flags = []cli.Flag {
+    cli.StringFlag{
+      Name: "password, p",
+      Usage: "password for the mysql database",
+      FilePath: "/etc/mysql/password",
+    },
+  }
+
+  app.Run(os.Args)
+}
+```
+
+Note that default values set from file (e.g. `FilePath`) take precedence over
+default values set from the enviornment (e.g. `EnvVar`).
+
 #### Values from alternate input sources (YAML, TOML, and others)
 
 There is a separate package altsrc that adds support for getting flag values
@@ -761,11 +797,11 @@ func main() {
     },
     {
       Name:     "add",
-      Category: "template",
+      Category: "Template actions",
     },
     {
       Name:     "remove",
-      Category: "template",
+      Category: "Template actions",
     },
   }
 
