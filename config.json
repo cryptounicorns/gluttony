@@ -10,7 +10,7 @@
                 "Queue": {
                     "Type": "nsq",
                     "Nsq": {
-                        "Addr": "127.0.0.1:4150",
+                        "Addr": "nsq:4150",
                         "Channel": "gluttony",
                         "ConsumerBufferSize": 128,
                         "Topic": "ticker",
@@ -30,7 +30,7 @@
                 "Type": "influxdb",
                 "Influxdb": {
                     "Client": {
-                        "Addr": "http://127.0.0.1:8086"
+                        "Addr": "http://influxdb:8086"
                     },
                     "Writer": {
                         "Batch": {
