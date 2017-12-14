@@ -1,14 +1,16 @@
 hash: 08e171a14b22db129f9cdacf5a1601210c58738b6b57f35beadb974a8fcea3b8
-updated: 2017-09-13T11:07:52.319627424Z
+updated: 2017-11-24T01:27:43.728084395Z
 imports:
 - name: github.com/naoina/go-stringutil
   version: 6b638e95a32d0c1131db0e7fe83775cbea4a0d0b
 - name: github.com/naoina/toml
-  version: 22582348aafc089c746581b7ea046235dc9d6755
+  version: 9fafd69674167c06933b1787ae235618431ce87f
   subpackages:
   - ast
+- name: github.com/urfave/cli
+  version: 7ace96b43d4bdc46f81d0d1219742b2469874cf6
 - name: gopkg.in/yaml.v2
-  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
+  version: 287cf08546ab5e7e37d55a84f7ed3fd1db036de5
 testImports:
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76

@@ -21,7 +21,7 @@ import (
 	"github.com/influxdata/influxdb/pkg/limiter"
 	"github.com/influxdata/influxdb/query"
 	"github.com/influxdata/influxql"
-	"github.com/uber-go/zap"
+	"go.uber.org/zap"
 )
 
 var (
@@ -53,8 +53,8 @@ type Store struct {
 
 	EngineOptions EngineOptions
 
-	baseLogger zap.Logger
-	Logger     zap.Logger
+	baseLogger *zap.Logger
+	Logger     *zap.Logger
 
 	closing chan struct{}
 	wg      sync.WaitGroup
@@ -64,7 +64,7 @@ type Store struct {
 // NewStore returns a new store with the given path and a default configuration.
 // The returned store must be initialized by calling Open before using it.
 func NewStore(path string) *Store {
-	logger := zap.New(zap.NullEncoder())
+	logger := zap.NewNop()
 	return &Store{
 		databases:     make(map[string]struct{}),
 		path:          path,
@@ -76,7 +76,7 @@ func NewStore(path string) *Store {
 }
 
 // WithLogger sets the logger for the store.
-func (s *Store) WithLogger(log zap.Logger) {
+func (s *Store) WithLogger(log *zap.Logger) {
 	s.baseLogger = log
 	s.Logger = log.With(zap.String("service", "store"))
 	for _, sh := range s.shards {
@@ -169,6 +169,12 @@ func (s *Store) loadShards() error {
 	lim := s.EngineOptions.Config.MaxConcurrentCompactions
 	if lim == 0 {
 		lim = runtime.GOMAXPROCS(0) / 2 // Default to 50% of cores for compactions
+
+		// On systems with more cores, cap at 4 to reduce disk utilization
+		if lim > 4 {
+			lim = 4
+		}
+
 		if lim < 1 {
 			lim = 1
 		}
@@ -371,6 +377,16 @@ func (s *Store) ShardN() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.shards)
+}
+
+// ShardDigest returns a digest of the shard with the specified ID.
+func (s *Store) ShardDigest(id uint64) (io.ReadCloser, error) {
+	sh := s.Shard(id)
+	if sh == nil {
+		return nil, ErrShardNotFound
+	}
+
+	return sh.Digest()
 }
 
 // CreateShard creates a shard with the given id and retention policy on a database.
@@ -790,6 +806,20 @@ func (s *Store) BackupShard(id uint64, since time.Time, w io.Writer) error {
 	return shard.Backup(w, path, since)
 }
 
+func (s *Store) ExportShard(id uint64, start time.Time, end time.Time, w io.Writer) error {
+	shard := s.Shard(id)
+	if shard == nil {
+		return fmt.Errorf("shard %d doesn't exist on this server", id)
+	}
+
+	path, err := relativePath(s.path, shard.path)
+	if err != nil {
+		return err
+	}
+
+	return shard.Export(w, path, start, end)
+}
+
 // RestoreShard restores a backup from r to a given shard.
 // This will only overwrite files included in the backup.
 func (s *Store) RestoreShard(id uint64, r io.Reader) error {
@@ -897,23 +927,21 @@ func (s *Store) DeleteSeries(database string, sources []influxql.Source, conditi
 		defer limit.Release()
 
 		// Find matching series keys for each measurement.
-		var keys [][]byte
 		for _, name := range names {
-			a, err := sh.MeasurementSeriesKeysByExpr([]byte(name), condition)
+
+			itr, err := sh.MeasurementSeriesKeysByExprIterator([]byte(name), condition)
 			if err != nil {
 				return err
+			} else if itr == nil {
+				continue
 			}
-			keys = append(keys, a...)
+
+			if err := sh.DeleteSeriesRange(itr, min, max); err != nil {
+				return err
+			}
+
 		}
 
-		if !bytesutil.IsSorted(keys) {
-			bytesutil.Sort(keys)
-		}
-
-		// Delete all matching keys.
-		if err := sh.DeleteSeriesRange(keys, min, max); err != nil {
-			return err
-		}
 		return nil
 	})
 }
@@ -958,7 +986,7 @@ func (s *Store) WriteToShard(shardID uint64, points []models.Point) error {
 // MeasurementNames returns a slice of all measurements. Measurements accepts an
 // optional condition expression. If cond is nil, then all measurements for the
 // database will be returned.
-func (s *Store) MeasurementNames(database string, cond influxql.Expr) ([][]byte, error) {
+func (s *Store) MeasurementNames(auth query.Authorizer, database string, cond influxql.Expr) ([][]byte, error) {
 	s.mu.RLock()
 	shards := s.filterShards(byDatabase(database))
 	s.mu.RUnlock()
@@ -976,7 +1004,7 @@ func (s *Store) MeasurementNames(database string, cond influxql.Expr) ([][]byte,
 	set := make(map[string]struct{})
 	var names [][]byte
 	for _, sh := range shards {
-		a, err := sh.MeasurementNamesByExpr(cond)
+		a, err := sh.MeasurementNamesByExpr(auth, cond)
 		if err != nil {
 			return nil, err
 		}
@@ -1076,7 +1104,9 @@ func (s *Store) TagKeys(auth query.Authorizer, shardIDs []uint64, cond influxql.
 	// Determine list of measurements.
 	nameSet := make(map[string]struct{})
 	for _, sh := range shards {
-		names, err := sh.MeasurementNamesByExpr(measurementExpr)
+		// Checking for authorisation can be done later on, when non-matching
+		// series might have been filtered out based on other conditions.
+		names, err := sh.MeasurementNamesByExpr(nil, measurementExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -1096,7 +1126,7 @@ func (s *Store) TagKeys(auth query.Authorizer, shardIDs []uint64, cond influxql.
 	var results []TagKeys
 	for _, name := range names {
 		// Build keyset over all shards for measurement.
-		keySet := make(map[string]struct{})
+		keySet := map[string]struct{}{}
 		for _, sh := range shards {
 			shardKeySet, err := sh.MeasurementTagKeysByExpr([]byte(name), nil)
 			if err != nil {
@@ -1105,6 +1135,21 @@ func (s *Store) TagKeys(auth query.Authorizer, shardIDs []uint64, cond influxql.
 				continue
 			}
 
+			// If no tag value filter is present then all the tag keys can be returned
+			// If they have authorized series associated with them.
+			if filterExpr == nil {
+				for tagKey := range shardKeySet {
+					if sh.TagKeyHasAuthorizedSeries(auth, []byte(name), tagKey) {
+						keySet[tagKey] = struct{}{}
+					}
+				}
+				continue
+			}
+
+			// A tag value condition has been supplied. For each tag key filter
+			// the set of tag values by the condition. Only tag keys with remaining
+			// tag values will be included in the result set.
+
 			// Sort the tag keys.
 			shardKeys := make([]string, 0, len(shardKeySet))
 			for k := range shardKeySet {
@@ -1112,7 +1157,10 @@ func (s *Store) TagKeys(auth query.Authorizer, shardIDs []uint64, cond influxql.
 			}
 			sort.Strings(shardKeys)
 
-			// Filter against tag values, skip if no values exist.
+			// TODO(edd): This is very expensive. We're materialising all unfiltered
+			// tag values for all required tag keys, only to see if we have any.
+			// Then we're throwing them all away as we only care about the tag
+			// keys in the result set.
 			shardValues, err := sh.MeasurementTagKeyValuesByExpr(auth, []byte(name), shardKeys, filterExpr, true)
 			if err != nil {
 				return nil, err
@@ -1230,7 +1278,9 @@ func (s *Store) TagValues(auth query.Authorizer, shardIDs []uint64, cond influxq
 	var maxMeasurements int // Hint as to lower bound on number of measurements.
 	for _, sh := range shards {
 		// names will be sorted by MeasurementNamesByExpr.
-		names, err := sh.MeasurementNamesByExpr(measurementExpr)
+		// Authorisation can be done later one, when series may have been filtered
+		// out by other conditions.
+		names, err := sh.MeasurementNamesByExpr(nil, measurementExpr)
 		if err != nil {
 			return nil, err
 		}
@@ -1497,7 +1547,7 @@ func (s *Store) monitorShards() {
 				// inmem shards share the same index instance so just use the first one to avoid
 				// allocating the same measurements repeatedly
 				first := shards[0]
-				names, err := first.MeasurementNamesByExpr(nil)
+				names, err := first.MeasurementNamesByExpr(nil, nil)
 				if err != nil {
 					s.Logger.Warn("cannot retrieve measurement names", zap.Error(err))
 					return nil

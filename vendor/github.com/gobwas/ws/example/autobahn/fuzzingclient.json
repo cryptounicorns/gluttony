@@ -1,0 +1,25 @@
+
+{
+   "outdir": "./example/autobahn/reports/servers",
+   "servers": [
+      {
+		 "agent": "ws",
+         "url":   "ws://127.0.0.1:9001/ws"
+      },
+      {
+		 "agent": "wsutil",
+         "url":   "ws://127.0.0.1:9001/wsutil"
+      },
+      {
+		 "agent": "helpers/low",
+         "url":   "ws://127.0.0.1:9001/helpers/low"
+      },
+      {
+		 "agent": "helpers/high",
+         "url":   "ws://127.0.0.1:9001/helpers/high"
+      }
+   ],
+   "cases": ["*"],
+   "exclude-cases": [],
+   "exclude-agent-cases": {}
+}

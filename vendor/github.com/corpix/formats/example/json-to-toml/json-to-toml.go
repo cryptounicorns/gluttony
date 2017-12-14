@@ -19,7 +19,7 @@ func main() {
 	// XXX: map[string]interface{} because
 	// toml package says:
 	// panic: toml: cannot marshal interface {} as table, want struct or map type
-	v := new(map[string]interface{})
+	v := new(interface{})
 
 	j := formats.NewJSON()
 	err := j.Unmarshal(

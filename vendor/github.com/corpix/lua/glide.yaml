@@ -1,0 +1,10 @@
+package: github.com/corpix/lua
+import:
+- package: github.com/davecgh/go-spew
+  subpackages:
+  - spew
+- package: github.com/yuin/gopher-lua
+testImport:
+- package: github.com/stretchr/testify
+  subpackages:
+  - assert

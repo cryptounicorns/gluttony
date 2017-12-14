@@ -6,81 +6,85 @@ import (
 	"os"
 
 	"github.com/corpix/formats"
-	"github.com/cryptounicorns/gluttony/logger"
+	"github.com/go-playground/validator"
 	"github.com/imdario/mergo"
-	"github.com/influxdata/influxdb/client/v2"
+
+	"github.com/cryptounicorns/gluttony/input"
+	"github.com/cryptounicorns/gluttony/logger"
 )
 
 var (
-	// LoggerConfig represents default logger config.
-	LoggerConfig = logger.Config{
-		Level: "info",
-	}
-
 	// Default represents default application config.
 	Default = Config{
-		Logger: LoggerConfig,
-		JSONInput: JSONInputConfig{
-			Path: "/var/gluttony/tickers.json",
-		},
-		InfluxDB: InfluxDBConfig{
-			Client: client.HTTPConfig{
-				Addr: "localhost",
-			},
+		Logger: logger.Config{
+			Level: "info",
 		},
 	}
 )
 
-// JSONInputConfig input file configuration (sort of)
-// @TODO Extend with fsnotify and/or replace with NSQ consumer
-type JSONInputConfig struct {
-	Path string
-}
-
-// InfluxDBConfig InfluxDB-related configuration
-type InfluxDBConfig struct {
-	Client client.HTTPConfig
-	Batch  client.BatchPointsConfig
-}
-
 // Config represents application configuration structure.
 type Config struct {
-	Logger    logger.Config
-	JSONInput JSONInputConfig
-	InfluxDB  InfluxDBConfig
+	Logger logger.Config  `validate:"required"`
+	Inputs []input.Config `validate:"required,dive"`
 }
 
-// FromReader fills Config structure `c` passed by reference with
-// parsed config data in some `f` from reader `r`.
+// FromReader returns parsed config data in some `f` from reader `r`.
 // It copies `Default` into the target structure before unmarshaling
 // config, so it will have default values.
-func FromReader(f formats.Format, r io.Reader, c *Config) error {
-	data, err := ioutil.ReadAll(r)
+func FromReader(f formats.Format, r io.Reader) (Config, error) {
+	var (
+		validate = validator.New()
+		c        Config
+		buf      []byte
+		err      error
+	)
+
+	buf, err = ioutil.ReadAll(r)
 	if err != nil {
-		return err
+		return c, err
 	}
 
-	err = mergo.Merge(c, Default)
+	err = mergo.Merge(&c, Default)
 	if err != nil {
-		return err
+		return c, err
 	}
 
-	return f.Unmarshal(data, c)
+	err = f.Unmarshal(buf, &c)
+	if err != nil {
+		return c, err
+	}
+
+	err = validate.Struct(c)
+	if err != nil {
+		return c, err
+	}
+
+	return c, nil
 }
 
-// FromFile fills Config structure `c` passed by reference with
-// parsed config data from file in `path`.
-func FromFile(path string, c *Config) error {
-	f, err := formats.NewFromPath(path)
+// FromFile returns parsed config data from file in `path`.
+func FromFile(path string) (Config, error) {
+	var (
+		c   Config
+		f   formats.Format
+		r   io.ReadWriteCloser
+		err error
+	)
+	f, err = formats.NewFromPath(path)
 	if err != nil {
-		return err
+		return c, err
 	}
 
-	r, err := os.Open(path)
+	r, err = os.Open(path)
 	if err != nil {
-		return err
+		return c, err
 	}
 	defer r.Close()
 
-	return FromReader(f, r, c)
+	c, err = FromReader(f, r)
+	if err != nil {
+		return c, err
+	}
+
+	return c, nil
 }

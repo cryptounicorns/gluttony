@@ -5,10 +5,8 @@ RUN make
 
 FROM fedora:latest
 
-RUN mkdir            /etc/gluttony
+RUN mkdir           /etc/gluttony
 COPY --from=builder /go/src/github.com/cryptounicorns/gluttony/build/gluttony /usr/bin/gluttony
-
-RUN mkdir /var/gluttony
 
 CMD [                                      \
     "/usr/bin/gluttony",                   \

@@ -1,0 +1,10 @@
+package: github.com/corpix/stores
+import:
+- package: github.com/corpix/loggers
+  subpackages:
+  - logger/prefixwrapper
+- package: github.com/corpix/time
+testImport:
+- package: github.com/stretchr/testify
+  subpackages:
+  - assert
