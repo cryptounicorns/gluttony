@@ -10,7 +10,7 @@ type PointConfig struct {
 	Fields             []string `validator:"required"`
 	Tags               []string
 	Timestamp          string `validator:"required"`
-	TimestampPrecision string `validator:"required"`
+	TimestampPrecision string `validator:"required,eq=nanosecond|eq=microsecond|eq=millisecond|eq=second"`
 }
 
 type BatchConfig struct {

@@ -83,10 +83,8 @@ loop:
 	return d.client.Write(bp)
 }
 
-func (d *InfluxDB) tags(r record.Record) (map[string]string, error) {
+func (d *InfluxDB) tags(rk reflect.Kind, rv reflect.Value) (map[string]string, error) {
 	var (
-		rk  = reflect.TypeOf(r).Kind()
-		rv  = reflect.ValueOf(r)
 		res = map[string]string{}
 		k   string
 		v   string
@@ -125,10 +123,8 @@ func (d *InfluxDB) tags(r record.Record) (map[string]string, error) {
 	return res, nil
 }
 
-func (d *InfluxDB) fields(r record.Record) (map[string]interface{}, error) {
+func (d *InfluxDB) fields(rk reflect.Kind, rv reflect.Value) (map[string]interface{}, error) {
 	var (
-		rk  = reflect.TypeOf(r).Kind()
-		rv  = reflect.ValueOf(r)
 		res = map[string]interface{}{}
 		k   string
 		ok  bool
@@ -158,30 +154,84 @@ func (d *InfluxDB) fields(r record.Record) (map[string]interface{}, error) {
 	return res, nil
 }
 
-func (d *InfluxDB) Create(r record.Record) error {
+func (d *InfluxDB) timestamp(rv reflect.Value) (time.Time, error) {
 	var (
-		p      *client.Point
-		tags   map[string]string
-		fields map[string]interface{}
-		err    error
+		v = rv.
+			MapIndex(reflect.ValueOf(d.config.Writer.Point.Timestamp)).
+			Interface()
+		fts     float64
+		ts      uint64
+		sec     uint64
+		nanoSec uint64
+		t       time.Time
+		ok      bool
 	)
 
-	tags, err = d.tags(r)
+	// XXX: This is because of Lua :'(
+	// Otherwise we will be dealing with uint64
+	fts, ok = v.(float64)
+	if !ok {
+		return t, NewErrUnexpectedMapKeyType(
+			"float64",
+			v,
+		)
+	}
+
+	ts = uint64(fts)
+
+	switch d.config.Writer.Point.TimestampPrecision {
+	case "nanosecond":
+		sec = ts / 1000000000
+		nanoSec = ts - sec*1000000000
+	case "microsecond":
+		sec = ts / 1000000
+		nanoSec = ts - sec*1000000
+	case "millisecond":
+		sec = ts / 1000
+		nanoSec = ts - sec*1000
+	case "second":
+		sec = ts
+		nanoSec = 0
+	default:
+		return t, NewErrUnsupportedTimestampPrecision(
+			d.config.Writer.Point.TimestampPrecision,
+		)
+	}
+
+	return time.Unix(int64(sec), int64(nanoSec)), nil
+}
+
+func (d *InfluxDB) Create(r record.Record) error {
+	var (
+		rk        = reflect.TypeOf(r).Kind()
+		rv        = reflect.ValueOf(r)
+		p         *client.Point
+		tags      map[string]string
+		fields    map[string]interface{}
+		timestamp time.Time
+		err       error
+	)
+
+	tags, err = d.tags(rk, rv)
 	if err != nil {
 		return err
 	}
 
-	fields, err = d.fields(r)
+	fields, err = d.fields(rk, rv)
 	if err != nil {
 		return err
 	}
 
-	// FIXME: time
+	timestamp, err = d.timestamp(rv)
+	if err != nil {
+		return err
+	}
+
 	p, err = client.NewPoint(
 		d.config.Writer.Point.Name,
 		tags,
 		fields,
-		time.Now(),
+		timestamp,
 	)
 	if err != nil {
 		return err
