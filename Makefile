@@ -71,3 +71,5 @@ build:: $(name)
 .PHONY: clean
 clean::
 	rm -rf $(build)
+
+include nix.mk
