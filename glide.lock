@@ -76,7 +76,7 @@ imports:
 - name: github.com/imdario/mergo
   version: 7fe0c75c13abdee74b09fcacef5ea1c6bba6a874
 - name: github.com/influxdata/influxdb
-  version: fcb634d2d20a950653a23003d13f4924bb0f30ac
+  version: 34024dac9f8d62f7a3e3d2e4eb1aed6fe7b67f11
   subpackages:
   - client/v2
   - models
@@ -102,7 +102,7 @@ imports:
 - name: github.com/urfave/cli
   version: 39908eb08fee7c10d842622a114a5c133fb0a3c6
 - name: github.com/yuin/gopher-lua
-  version: 632fa3b1f21cf2ca30e2f52981cb9688598262a8
+  version: 1cb8066a6cc6fa003843d1feabf6ae36fed26eb3
   subpackages:
   - ast
   - parse
