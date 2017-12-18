@@ -1,5 +1,5 @@
 hash: 48367910638b42f89ddc6624e64e184145f3f593bf5f6132424669ed3b4a96d9
-updated: 2017-12-18T05:43:51.43362513Z
+updated: 2017-12-18T07:02:37.284608849Z
 imports:
 - name: github.com/bitly/go-nsq
   version: 8c1ff52dff6fd3ecc19c418649bc643b18e862fc
@@ -28,7 +28,7 @@ imports:
 - name: github.com/corpix/time
   version: 9adb218ff5319d3f3e3d5a44fe0cb5d4880762f4
 - name: github.com/cryptounicorns/queues
-  version: fcb711db19ff079bcc7f8fd08b854b3f94832d73
+  version: 57fd23e9779948122d482324a18b23d074334690
   subpackages:
   - consumer
   - errors
