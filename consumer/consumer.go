@@ -15,7 +15,13 @@ import (
 
 type PrepareForDatabaseFn = func(v interface{}) (interface{}, error)
 
-func PipeConsumerToDatabaseWith(c queues.GenericConfig, ctx context.Context, fn PrepareForDatabaseFn, d databases.Database, l loggers.Logger) error {
+func PipeConsumerToDatabaseWith(
+	c queues.GenericConfig,
+	ctx context.Context,
+	fn PrepareForDatabaseFn,
+	d databases.Database,
+	l loggers.Logger,
+) error {
 	var (
 		closers = closer.Closers{}
 		f       formats.Format

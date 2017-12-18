@@ -43,8 +43,7 @@ func (l *Lua) Preprocess(v interface{}) (interface{}, error) {
 	)
 	defer l.pool.Put(vm)
 
-	// FIXME: Dangerous indirection
-	lv, err = mapper.ToValue(**(v.(**interface{})))
+	lv, err = mapper.ToValue(v)
 	if err != nil {
 		return nil, err
 	}

@@ -157,19 +157,19 @@ func (d *InfluxDB) fields(rk reflect.Kind, rv reflect.Value) (map[string]interfa
 func (d *InfluxDB) timestamp(rv reflect.Value) (time.Time, error) {
 	var (
 		v = rv.
-			MapIndex(reflect.ValueOf(d.config.Writer.Point.Timestamp)).
+			MapIndex(reflect.
+				ValueOf(d.config.Writer.Point.Timestamp)).
 			Interface()
-		fts     float64
-		ts      uint64
-		sec     uint64
-		nanoSec uint64
+		ts      float64
+		sec     int64
+		nanoSec int64
 		t       time.Time
 		ok      bool
 	)
 
 	// XXX: This is because of Lua :'(
 	// Otherwise we will be dealing with uint64
-	fts, ok = v.(float64)
+	ts, ok = v.(float64)
 	if !ok {
 		return t, NewErrUnexpectedMapKeyType(
 			"float64",
@@ -177,20 +177,18 @@ func (d *InfluxDB) timestamp(rv reflect.Value) (time.Time, error) {
 		)
 	}
 
-	ts = uint64(fts)
-
 	switch d.config.Writer.Point.TimestampPrecision {
 	case "nanosecond":
-		sec = ts / 1000000000
-		nanoSec = ts - sec*1000000000
+		sec = int64(ts) / 1000000000
+		nanoSec = int64(ts) - sec*1000000000
 	case "microsecond":
-		sec = ts / 1000000
-		nanoSec = ts - sec*1000000
+		sec = int64(ts) / 1000000
+		nanoSec = int64(ts) - sec*1000000
 	case "millisecond":
-		sec = ts / 1000
-		nanoSec = ts - sec*1000
+		sec = int64(ts) / 1000
+		nanoSec = int64(ts) - sec*1000
 	case "second":
-		sec = ts
+		sec = int64(ts)
 		nanoSec = 0
 	default:
 		return t, NewErrUnsupportedTimestampPrecision(
@@ -198,7 +196,7 @@ func (d *InfluxDB) timestamp(rv reflect.Value) (time.Time, error) {
 		)
 	}
 
-	return time.Unix(int64(sec), int64(nanoSec)), nil
+	return time.Unix(sec, nanoSec), nil
 }
 
 func (d *InfluxDB) Create(r record.Record) error {
