@@ -1,5 +1,5 @@
 hash: 48367910638b42f89ddc6624e64e184145f3f593bf5f6132424669ed3b4a96d9
-updated: 2017-12-18T07:02:37.284608849Z
+updated: 2017-12-18T19:13:08.639957782Z
 imports:
 - name: github.com/bitly/go-nsq
   version: 8c1ff52dff6fd3ecc19c418649bc643b18e862fc
@@ -28,7 +28,7 @@ imports:
 - name: github.com/corpix/time
   version: 9adb218ff5319d3f3e3d5a44fe0cb5d4880762f4
 - name: github.com/cryptounicorns/queues
-  version: 57fd23e9779948122d482324a18b23d074334690
+  version: 1f4b2b2001b53e46d69d946252fafbb8094c29ec
   subpackages:
   - consumer
   - errors
@@ -41,7 +41,7 @@ imports:
   - queue/websocket
   - result
 - name: github.com/davecgh/go-spew
-  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  version: ecdeabc65495df2dec95d7c4a4c3e021903035e5
   subpackages:
   - spew
 - name: github.com/eapache/go-resiliency
@@ -76,7 +76,7 @@ imports:
 - name: github.com/imdario/mergo
   version: 7fe0c75c13abdee74b09fcacef5ea1c6bba6a874
 - name: github.com/influxdata/influxdb
-  version: 34024dac9f8d62f7a3e3d2e4eb1aed6fe7b67f11
+  version: b287c191f362e7313aae0fa08c19b787076ad530
   subpackages:
   - client/v2
   - models
@@ -102,7 +102,7 @@ imports:
 - name: github.com/urfave/cli
   version: 39908eb08fee7c10d842622a114a5c133fb0a3c6
 - name: github.com/yuin/gopher-lua
-  version: 1cb8066a6cc6fa003843d1feabf6ae36fed26eb3
+  version: 3d9c8196b0034e3c36481248e02dc39953bcc849
   subpackages:
   - ast
   - parse
