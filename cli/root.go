@@ -69,9 +69,8 @@ func runInput(c input.Config, l loggers.Logger) {
 func RootAction(c *cli.Context) error {
 	for _, i := range Config.Inputs {
 		log.Printf(
-			"Running '%s' -> '%s' input...",
-			i.Consumer.Queue.Type,
-			i.Database.Type,
+			"Running '%s'",
+			i.Name,
 		)
 		go runInput(i, log)
 	}

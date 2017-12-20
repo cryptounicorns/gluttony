@@ -155,6 +155,10 @@ func (d *InfluxDB) fields(rk reflect.Kind, rv reflect.Value) (map[string]interfa
 }
 
 func (d *InfluxDB) timestamp(rv reflect.Value) (time.Time, error) {
+	if d.config.Writer.Point.Timestamp == "" {
+		return time.Now(), nil
+	}
+
 	var (
 		v = rv.
 			MapIndex(reflect.

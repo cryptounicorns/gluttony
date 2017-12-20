@@ -2,8 +2,10 @@ package input
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/corpix/loggers"
+	"github.com/corpix/loggers/logger/prefixwrapper"
 
 	"github.com/cryptounicorns/gluttony/consumer"
 	"github.com/cryptounicorns/gluttony/databases"
@@ -18,18 +20,22 @@ type Input struct {
 
 func (i *Input) Run(ctx context.Context) error {
 	var (
+		log = prefixwrapper.New(
+			fmt.Sprintf("Input(%s): ", i.config.Name),
+			i.log,
+		)
 		c   databases.Connection
 		d   databases.Database
 		err error
 	)
 
-	c, err = databases.Connect(i.config.Database, i.log)
+	c, err = databases.Connect(i.config.Database, log)
 	if err != nil {
 		return err
 	}
 	defer c.Close()
 
-	d, err = databases.New(i.config.Database, c, i.log)
+	d, err = databases.New(i.config.Database, c, log)
 	if err != nil {
 		return err
 	}
@@ -40,7 +46,7 @@ func (i *Input) Run(ctx context.Context) error {
 		ctx,
 		i.preprocessor.Preprocess,
 		d,
-		i.log,
+		log,
 	)
 }
 

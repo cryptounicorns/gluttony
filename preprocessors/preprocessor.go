@@ -8,6 +8,7 @@ import (
 	"github.com/corpix/loggers/logger/prefixwrapper"
 
 	"github.com/cryptounicorns/gluttony/preprocessors/preprocessor/lua"
+	"github.com/cryptounicorns/gluttony/preprocessors/preprocessor/none"
 )
 
 type Preprocessor interface {
@@ -27,6 +28,8 @@ func New(c Config, l loggers.Logger) (Preprocessor, error) {
 	switch t {
 	case lua.Name:
 		return lua.New(c.Lua, log)
+	case none.Name:
+		return none.New(c.None, log)
 	default:
 		return nil, NewErrUnknownPreprocessorType(c.Type)
 	}
