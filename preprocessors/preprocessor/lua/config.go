@@ -1,7 +1,7 @@
 package lua
 
 type Config struct {
-	Code         string `validator:"required"`
-	FunctionName string `validator:"required"`
-	Workers      uint   `validator:"required"`
+	Code         string `validate:"required"`
+	FunctionName string `validate:"required"`
+	Workers      uint   `validate:"required"`
 }

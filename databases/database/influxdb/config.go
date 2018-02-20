@@ -6,25 +6,25 @@ import (
 )
 
 type PointConfig struct {
-	Name               string   `validator:"required"`
-	Fields             []string `validator:"required"`
+	Name               string   `validate:"required"`
+	Fields             []string `validate:"required"`
 	Tags               []string
-	Timestamp          string `validator:"required"`
-	TimestampPrecision string `validator:"required,eq=nanosecond|eq=microsecond|eq=millisecond|eq=second"`
+	Timestamp          string `validate:"required"`
+	TimestampPrecision string `validate:"required,eq=nanosecond|eq=microsecond|eq=millisecond|eq=second"`
 }
 
 type BatchConfig struct {
-	Points        client.BatchPointsConfig `validator:"required"`
-	FlushInterval time.Duration            `validator:"required"`
-	Size          uint                     `validator:"required"`
+	Points        client.BatchPointsConfig `validate:"required"`
+	FlushInterval time.Duration            `validate:"required"`
+	Size          uint                     `validate:"required"`
 }
 
 type WriterConfig struct {
-	Batch BatchConfig `validator:"required,dive"`
-	Point PointConfig `validator:"required,dive"`
+	Batch BatchConfig `validate:"required,dive"`
+	Point PointConfig `validate:"required,dive"`
 }
 
 type Config struct {
-	Client client.HTTPConfig `validator:"required"`
-	Writer WriterConfig      `validator:"required,dive"`
+	Client client.HTTPConfig `validate:"required"`
+	Writer WriterConfig      `validate:"required,dive"`
 }

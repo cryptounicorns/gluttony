@@ -5,6 +5,6 @@ import (
 )
 
 type Config struct {
-	Type     string          `validator:"required"`
-	Influxdb influxdb.Config `validator:"required,dive"`
+	Type     string          `validate:"required"`
+	Influxdb influxdb.Config `validate:"required,dive"`
 }

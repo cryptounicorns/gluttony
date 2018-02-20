@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	Type string      `validator:"required"`
-	Lua  lua.Config  `validator:"dive"`
-	None none.Config `validator:"dive"`
+	Type string      `validate:"required"`
+	Lua  lua.Config  `validate:"dive"`
+	None none.Config `validate:"dive"`
 }
