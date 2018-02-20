@@ -3,12 +3,12 @@ stdenv.mkDerivation {
   name = "gluttony-shell";
   buildInputs = [
     influxdb
-    ncurses
     go
     gocode
-    go-bindata
     glide
     godef
-    bison
   ];
+  shellHook = ''
+    export GOPATH=~/projects
+  '';
 }
