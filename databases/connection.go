@@ -25,7 +25,7 @@ func Connect(c Config, l loggers.Logger) (Connection, error) {
 	switch t {
 	case influxdb.Name:
 		return influxdb.Connect(
-			c.Influxdb,
+			*c.Influxdb,
 			log,
 		)
 	default:

@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	Type string      `validate:"required"`
-	Lua  lua.Config  `validate:"dive"`
-	None none.Config `validate:"dive"`
+	Type string `validate:"required"`
+	Lua  *lua.Config
+	None *none.Config
 }

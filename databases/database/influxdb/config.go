@@ -20,11 +20,11 @@ type BatchConfig struct {
 }
 
 type WriterConfig struct {
-	Batch BatchConfig `validate:"required,dive"`
-	Point PointConfig `validate:"required,dive"`
+	Batch BatchConfig `validate:"required"`
+	Point PointConfig `validate:"required"`
 }
 
 type Config struct {
 	Client client.HTTPConfig `validate:"required"`
-	Writer WriterConfig      `validate:"required,dive"`
+	Writer WriterConfig      `validate:"required"`
 }

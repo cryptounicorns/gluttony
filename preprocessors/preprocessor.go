@@ -27,9 +27,9 @@ func New(c Config, l loggers.Logger) (Preprocessor, error) {
 
 	switch t {
 	case lua.Name:
-		return lua.New(c.Lua, log)
+		return lua.New(*c.Lua, log)
 	case none.Name:
-		return none.New(c.None, log)
+		return none.New(*c.None, log)
 	default:
 		return nil, NewErrUnknownPreprocessorType(c.Type)
 	}

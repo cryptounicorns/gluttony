@@ -29,7 +29,7 @@ func New(c Config, conn Connection, l loggers.Logger) (Database, error) {
 	switch t {
 	case influxdb.Name:
 		return influxdb.New(
-			c.Influxdb,
+			*c.Influxdb,
 			conn.(client.Client),
 			log,
 		)

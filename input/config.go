@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	Name         string               `validate:"required"`
-	Consumer     consumer.Config      `validate:"required,dive"`
-	Preprocessor preprocessors.Config `validate:"required,dive"`
-	Database     databases.Config     `validate:"required,dive"`
+	Consumer     consumer.Config      `validate:"required"`
+	Preprocessor preprocessors.Config `validate:"required"`
+	Database     databases.Config     `validate:"required"`
 }
