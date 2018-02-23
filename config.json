@@ -64,48 +64,6 @@
                     }
                 }
             }
-        },
-        {
-            "Name": "redeemedwextokens",
-            "Consumer": {
-                "Format": "json",
-                "Queue": {
-                    "Type": "nsq",
-                    "Nsq": {
-                        "Addr": "nsqd:4150",
-                        "Channel": "gluttony",
-                        "ConsumerBufferSize": 128,
-                        "Topic": "redeemedwextokens",
-                        "LogLevel": "info"
-                    }
-                }
-            },
-            "Preprocessor": {"Type": "none"},
-            "Database": {
-                "Type": "influxdb",
-                "Influxdb": {
-                    "Client": {
-                        "Addr": "http://influxdb:8086"
-                    },
-                    "Writer": {
-                        "Batch": {
-                            "FlushInterval": "60s",
-                            "Points": {
-                                "Precision": "s",
-                                "Database": "gluttony",
-                                "RetentionPolicy": "autogen",
-                                "WriteConsistency": "any"
-                            },
-                            "Size": 32
-                        },
-                        "Point": {
-                            "Name": "redeemedwextoken",
-                            "Fields": ["redeemedPercent"],
-                            "Tags": ["token"]
-                        }
-                    }
-                }
-            }
         }
     ]
 }
