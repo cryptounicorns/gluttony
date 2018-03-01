@@ -1,69 +1,69 @@
 {
-    "Logger": {
-        "Level": "info",
-        "Formatter": "json"
-    },
-    "Inputs": [
-        {
-            "Name": "ticker",
-            "Consumer": {
-                "Format": "json",
-                "Queue": {
-                    "Type": "nsq",
-                    "Nsq": {
-                        "Addr": "nsq:4150",
-                        "Channel": "gluttony",
-                        "ConsumerBufferSize": 128,
-                        "Topic": "ticker",
-                        "LogLevel": "info"
-                    }
-                }
-            },
-            "Preprocessor": {
-                "Type": "lua",
-                "Lua": {
-                    "Code": "function preprocess(v) v['currencyPair'] = v['currencyPair'][1]['symbol'] .. '-' .. v['currencyPair'][2]['symbol']; return v; end",
-                    "FunctionName": "preprocess",
-                    "Workers": 128
-                }
-            },
-            "Database": {
-                "Type": "influxdb",
-                "Influxdb": {
-                    "Client": {
-                        "Addr": "http://influxdb:8086"
-                    },
-                    "Writer": {
-                        "Batch": {
-                            "FlushInterval": "5s",
-                            "Points": {
-                                "Precision": "ns",
-                                "Database": "gluttony",
-                                "RetentionPolicy": "autogen",
-                                "WriteConsistency": "any"
-                            },
-                            "Size": 2048
-                        },
-                        "Point": {
-                            "Name": "ticker",
-                            "Fields": [
-                                "high",
-                                "low",
-                                "vol",
-                                "last",
-                                "buy",
-                                "sell"
-                            ],
-                            "Tags": [
-                                "market",
-                                "currencyPair"
-                            ],
-                            "Timestamp": "timestamp",
-                            "TimestampPrecision": "nanosecond"
-                        }
-                    }
-                }
-            }
+  "Inputs": [
+    {
+      "Consumer": {
+        "Format": "json",
+        "Queue": {
+          "Nsq": {
+            "Addr": "127.0.0.1:4150",
+            "Channel": "gluttony",
+            "ConsumerBufferSize": 128,
+            "LogLevel": "info",
+            "Topic": "tickers"
+          },
+          "Type": "nsq"
         }
-    ]
+      },
+      "Database": {
+        "Influxdb": {
+          "Client": {
+            "Addr": "http://127.0.0.1:8086"
+          },
+          "Writer": {
+            "Batch": {
+              "FlushInterval": "5s",
+              "Points": {
+                "Database": "gluttony",
+                "Precision": "ns",
+                "RetentionPolicy": "autogen",
+                "WriteConsistency": "any"
+              },
+              "Size": 2048
+            },
+            "Point": {
+              "Fields": [
+                "high",
+                "low",
+                "vol",
+                "last",
+                "buy",
+                "sell"
+              ],
+              "Name": "tickers",
+              "Tags": [
+                "market",
+                "currencyPair",
+                "tags"
+              ],
+              "Timestamp": "timestamp",
+              "TimestampPrecision": "nanosecond"
+            }
+          }
+        },
+        "Type": "influxdb"
+      },
+      "Preprocessor": {
+        "Lua": {
+          "Code": "function preprocess(v)\n  v['currencyPair'] = v['currencyPair'][1]['symbol'] ..\n    '-' .. v['currencyPair'][2]['symbol']\n  return v\nend\n",
+          "FunctionName": "preprocess",
+          "Workers": 128
+        },
+        "Type": "lua"
+      }
+    }
+  ],
+  "Logger": {
+    "Formatter": "json",
+    "Level": "info"
+  }
 }
