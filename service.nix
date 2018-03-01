@@ -6,17 +6,10 @@ let
   name = "gluttony";
   cfg = config.services."${name}";
   pkg = (pkgs.callPackage ./default.nix { }).bin;
-  configFile = pkgs.writeText "config.json" (builtins.toJSON cfg.application);
 in {
   options = with types; {
     services."${name}" = {
       enable = mkEnableOption "Gluttony MQ to database data-transport";
-      application = mkOption {
-        default = {};
-        description = ''
-          Application-level configuration.
-        '';
-      };
       user = mkOption {
         default = name;
         type = string;
@@ -29,6 +22,12 @@ in {
         type = string;
         description = ''
           Group name to run service from.
+        '';
+      };
+      configuration = mkOption {
+        default = {};
+        description = ''
+          Application configuration.
         '';
       };
     };
@@ -56,7 +55,7 @@ in {
         Type = "simple";
         User = name;
         Group = name;
-        ExecStart = "${pkg}/bin/${name} -c ${configFile}";
+        ExecStart = "${pkg}/bin/${name} -c ${pkgs.writeText "config.json" (builtins.toJSON cfg.configuration)}";
         Restart = "on-failure";
         RestartSec = 1;
       };
@@ -65,7 +64,7 @@ in {
         getDatabase = (input: input.Database.Influxdb.Writer.Batch.Points.Database);
         influxExec = (cmd: "${influxdb}/bin/influx --execute '${cmd}'");
         buildCommand = (input: influxExec "create database ${getDatabase input}");
-        commands = map buildCommand cfg.application.Inputs;
+        commands = map buildCommand cfg.configuration.Inputs;
       in concatStringsSep ";" commands;
     };
   };
