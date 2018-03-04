@@ -16,20 +16,20 @@ type Preprocessor interface {
 	Close() error
 }
 
-func New(c Config, l loggers.Logger) (Preprocessor, error) {
+func FromConfig(c Config, l loggers.Logger) (Preprocessor, error) {
 	var (
 		t   = strings.ToLower(c.Type)
 		log = prefixwrapper.New(
-			fmt.Sprintf("Preprocessor(%s): ", t),
+			fmt.Sprintf("Preprocessor %s: ", t),
 			l,
 		)
 	)
 
 	switch t {
 	case lua.Name:
-		return lua.New(*c.Lua, log)
+		return lua.FromConfig(*c.Lua, log)
 	case none.Name:
-		return none.New(*c.None, log)
+		return none.FromConfig(*c.None, log)
 	default:
 		return nil, NewErrUnknownPreprocessorType(c.Type)
 	}

@@ -18,18 +18,18 @@ type Database interface {
 	Close() error
 }
 
-func New(c Config, conn Connection, l loggers.Logger) (Database, error) {
+func FromConfig(c Config, conn Connection, l loggers.Logger) (Database, error) {
 	var (
 		t   = strings.ToLower(c.Type)
 		log = prefixwrapper.New(
-			fmt.Sprintf("Database(%s): ", t),
+			fmt.Sprintf("Database %s: ", t),
 			l,
 		)
 	)
 
 	switch t {
 	case influxdb.Name:
-		return influxdb.New(
+		return influxdb.FromConfig(
 			*c.Influxdb,
 			conn.(client.Client),
 			log,

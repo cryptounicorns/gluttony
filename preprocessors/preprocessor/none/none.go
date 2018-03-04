@@ -23,7 +23,7 @@ func (l *None) Close() error {
 	return nil
 }
 
-func New(c Config, l loggers.Logger) (*None, error) {
+func FromConfig(c Config, l loggers.Logger) (*None, error) {
 	return &None{
 		config: c,
 		log:    l,

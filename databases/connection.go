@@ -18,7 +18,7 @@ func Connect(c Config, l loggers.Logger) (Connection, error) {
 	var (
 		t   = strings.ToLower(c.Type)
 		log = prefixwrapper.New(
-			fmt.Sprintf("DatabaseConnection(%s): ", t),
+			fmt.Sprintf("DatabaseConnection %s: ", t),
 			l,
 		)
 	)

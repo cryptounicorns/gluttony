@@ -73,7 +73,7 @@ func (l *Lua) Close() error {
 	return nil
 }
 
-func New(c Config, l loggers.Logger) (*Lua, error) {
+func FromConfig(c Config, l loggers.Logger) (*Lua, error) {
 	var (
 		p = pool.New(newVM(c, l))
 	)

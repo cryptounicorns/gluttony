@@ -46,11 +46,12 @@ func runInput(c input.Config, l loggers.Logger) {
 		if i != nil {
 			i.Close()
 		}
+
 		if err != nil {
 			time.Sleep(5 * time.Second)
 		}
 
-		i, err = input.New(c, l)
+		i, err = input.FromConfig(c, l)
 		if err != nil {
 			l.Error(err)
 			continue

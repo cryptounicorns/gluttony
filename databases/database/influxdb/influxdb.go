@@ -17,13 +17,14 @@ const (
 )
 
 type InfluxDB struct {
-	config     Config
-	tagNames   map[string]bool
-	fieldNames map[string]bool
-	client     client.Client
-	log        loggers.Logger
-	points     chan *client.Point
-	done       chan struct{}
+	config         Config
+	timestampField reflect.Value
+	tagNames       map[string]bool
+	fieldNames     map[string]bool
+	client         client.Client
+	log            loggers.Logger
+	points         chan *client.Point
+	done           chan struct{}
 }
 
 func (d *InfluxDB) timeoutBatchWriter() {
@@ -182,8 +183,7 @@ func (d *InfluxDB) timestamp(rv reflect.Value) (time.Time, error) {
 
 	var (
 		v = rv.
-			MapIndex(reflect.
-				ValueOf(d.config.Writer.Point.Timestamp)).
+			MapIndex(d.timestampField).
 			Interface()
 		ts      float64
 		sec     int64
@@ -280,7 +280,7 @@ func (d *InfluxDB) Close() error {
 	return nil
 }
 
-func New(c Config, cl client.Client, l loggers.Logger) (*InfluxDB, error) {
+func FromConfig(c Config, cl client.Client, l loggers.Logger) (*InfluxDB, error) {
 	var (
 		tagNames   = map[string]bool{}
 		fieldNames = map[string]bool{}
@@ -296,11 +296,12 @@ func New(c Config, cl client.Client, l loggers.Logger) (*InfluxDB, error) {
 
 	var (
 		db = &InfluxDB{
-			config:     c,
-			tagNames:   tagNames,
-			fieldNames: fieldNames,
-			client:     cl,
-			log:        l,
+			config:         c,
+			timestampField: reflect.ValueOf(c.Writer.Point.Timestamp),
+			tagNames:       tagNames,
+			fieldNames:     fieldNames,
+			client:         cl,
+			log:            l,
 			points: make(
 				chan *client.Point,
 				c.Writer.Batch.Size,

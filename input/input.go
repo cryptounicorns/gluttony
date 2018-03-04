@@ -21,7 +21,7 @@ type Input struct {
 func (i *Input) Run(ctx context.Context) error {
 	var (
 		log = prefixwrapper.New(
-			fmt.Sprintf("Input(%s): ", i.config.Name),
+			fmt.Sprintf("Input %s: ", i.config.Name),
 			i.log,
 		)
 		c   databases.Connection
@@ -35,32 +35,37 @@ func (i *Input) Run(ctx context.Context) error {
 	}
 	defer c.Close()
 
-	d, err = databases.New(i.config.Database, c, log)
+	d, err = databases.FromConfig(i.config.Database, c, log)
 	if err != nil {
 		return err
 	}
 	defer d.Close()
 
-	return consumer.PipeConsumerToDatabaseWith(
+	err = consumer.PipeConsumerToDatabaseWith(
 		i.config.Consumer,
 		ctx,
 		i.preprocessor.Preprocess,
 		d,
 		log,
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (i *Input) Close() error {
 	return i.preprocessor.Close()
 }
 
-func New(c Config, l loggers.Logger) (*Input, error) {
+func FromConfig(c Config, l loggers.Logger) (*Input, error) {
 	var (
 		p   preprocessors.Preprocessor
 		err error
 	)
 
-	p, err = preprocessors.New(c.Preprocessor, l)
+	p, err = preprocessors.FromConfig(c.Preprocessor, l)
 	if err != nil {
 		return nil, err
 	}
