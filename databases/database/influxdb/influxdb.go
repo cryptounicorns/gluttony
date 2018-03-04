@@ -108,6 +108,7 @@ loop:
 func (d *InfluxDB) tags(rk reflect.Kind, rv reflect.Value) (map[string]string, error) {
 	var (
 		res = map[string]string{}
+		raw interface{}
 		k   string
 		v   string
 		ok  bool
@@ -128,9 +129,14 @@ func (d *InfluxDB) tags(rk reflect.Kind, rv reflect.Value) (map[string]string, e
 				continue
 			}
 
-			v, ok = rv.MapIndex(key).Interface().(string)
+			raw = rv.MapIndex(key).Interface()
+			if raw == nil {
+				continue
+			}
+
+			v, ok = raw.(string)
 			if !ok {
-				return nil, NewErrUnexpectedMapKeyType(
+				return nil, NewErrUnexpectedMapValueType(
 					"string",
 					rv.MapIndex(key).Interface(),
 				)

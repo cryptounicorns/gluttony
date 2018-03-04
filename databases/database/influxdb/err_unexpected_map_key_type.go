@@ -11,7 +11,7 @@ type ErrUnexpectedMapKeyType struct {
 
 func (e *ErrUnexpectedMapKeyType) Error() string {
 	return fmt.Sprintf(
-		"Unexpected map key type, want '%s', got '%T'",
+		"Unexpected map key type, want '%s', got '%#v'",
 		e.Want,
 		e.Got,
 	)
