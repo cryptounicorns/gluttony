@@ -9,6 +9,7 @@ import (
 	"github.com/corpix/loggers/logger/prefixwrapper"
 
 	"github.com/cryptounicorns/gluttony/databases/database/influxdb"
+	"github.com/cryptounicorns/gluttony/databases/errors"
 )
 
 type Connection = io.Closer
@@ -29,6 +30,6 @@ func Connect(c Config, l loggers.Logger) (Connection, error) {
 			log,
 		)
 	default:
-		return nil, NewErrUnknownDatabaseType(c.Type)
+		return nil, errors.NewErrUnknownDatabaseType(c.Type)
 	}
 }

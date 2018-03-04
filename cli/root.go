@@ -7,6 +7,7 @@ import (
 	"github.com/corpix/loggers"
 	"github.com/urfave/cli"
 
+	databaseErrors "github.com/cryptounicorns/gluttony/databases/errors"
 	"github.com/cryptounicorns/gluttony/input"
 )
 
@@ -59,7 +60,13 @@ func runInput(c input.Config, l loggers.Logger) {
 
 		err = i.Run(ctx)
 		if err != nil {
-			l.Error(err)
+			switch err.(type) {
+			case databaseErrors.ErrDatabaseNotFound:
+				l.Fatal(err)
+			default:
+				l.Error(err)
+			}
+
 			continue
 		}
 	}

@@ -9,6 +9,7 @@ import (
 	client "github.com/influxdata/influxdb/client/v2"
 
 	"github.com/cryptounicorns/gluttony/databases/database/influxdb"
+	"github.com/cryptounicorns/gluttony/databases/errors"
 	"github.com/cryptounicorns/gluttony/databases/record"
 )
 
@@ -34,6 +35,6 @@ func New(c Config, conn Connection, l loggers.Logger) (Database, error) {
 			log,
 		)
 	default:
-		return nil, NewErrUnknownDatabaseType(c.Type)
+		return nil, errors.NewErrUnknownDatabaseType(c.Type)
 	}
 }

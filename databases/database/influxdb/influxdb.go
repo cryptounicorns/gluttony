@@ -2,11 +2,13 @@ package influxdb
 
 import (
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/corpix/loggers"
 	client "github.com/influxdata/influxdb/client/v2"
 
+	"github.com/cryptounicorns/gluttony/databases/errors"
 	"github.com/cryptounicorns/gluttony/databases/record"
 )
 
@@ -69,6 +71,7 @@ loop:
 	}
 
 	if len(ps) == 0 {
+		d.log.Debug("Nothing to write, waiting for new data")
 		return nil
 	}
 
@@ -80,7 +83,25 @@ loop:
 	bp.AddPoints(ps)
 
 	d.log.Debug("Writing prepared batch of length ", len(ps))
-	return d.client.Write(bp)
+	err = d.client.Write(bp)
+	if err != nil {
+		d.log.Error("Failed to write batch with error ", err.Error())
+
+		// FIXME: Influxdb module failed to provide types for errors
+		// https://github.com/influxdata/influxdb/issues/9507
+		// Matching error messages here, be careful with influxdb client updates
+		// and blame Go for inventing fmt.Errorf and errors.New crap ¯\_(ツ)_/¯
+
+		databaseNotFoundErrorPrefix := `{"error":"database not found: `
+		if errStr := err.Error(); strings.HasPrefix(errStr, databaseNotFoundErrorPrefix) {
+			databaseName := errStr[len(databaseNotFoundErrorPrefix)+2 : len(errStr)-5]
+			return errors.NewErrDatabaseNotFound(databaseName)
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (d *InfluxDB) tags(rk reflect.Kind, rv reflect.Value) (map[string]string, error) {

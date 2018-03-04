@@ -1,19 +1,19 @@
-package databases
+package errors
 
 import (
 	"fmt"
 )
 
 type ErrUnknownDatabaseType struct {
-	t string
+	Type string
 }
 
-func (e *ErrUnknownDatabaseType) Error() string {
+func (e ErrUnknownDatabaseType) Error() string {
 	return fmt.Sprintf(
 		"Unknown database type '%s'",
-		e.t,
+		e.Type,
 	)
 }
 func NewErrUnknownDatabaseType(t string) error {
-	return &ErrUnknownDatabaseType{t}
+	return ErrUnknownDatabaseType{t}
 }
