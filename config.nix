@@ -24,8 +24,10 @@
         Lua = {
           Code = ''
             function preprocess(v)
-              v['currencyPair'] = v['currencyPair'][1]['symbol'] ..
-                '-' .. v['currencyPair'][2]['symbol']
+              if v['tags']
+              then
+                v['tags'] = table.concat(v['tags'], ',')
+              end
               return v
             end
           '';
@@ -37,9 +39,7 @@
       Database = {
         Type = "influxdb";
         Influxdb = {
-          Client = {
-            Addr = "http://127.0.0.1:8086";
-          };
+          Client.Addr = "http://127.0.0.1:8086";
           Writer = {
             Batch = {
               FlushInterval = "5s";
@@ -63,7 +63,7 @@
               ];
               Tags = [
                 "market"
-                "currencyPair"
+                "symbolPair"
                 "tags"
               ];
               Timestamp = "timestamp";

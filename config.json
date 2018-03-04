@@ -42,7 +42,7 @@
               "Name": "tickers",
               "Tags": [
                 "market",
-                "currencyPair",
+                "symbolPair",
                 "tags"
               ],
               "Timestamp": "timestamp",
@@ -54,7 +54,7 @@
       },
       "Preprocessor": {
         "Lua": {
-          "Code": "function preprocess(v)\n  v['currencyPair'] = v['currencyPair'][1]['symbol'] ..\n    '-' .. v['currencyPair'][2]['symbol']\n  return v\nend\n",
+          "Code": "function preprocess(v)\n  if v['tags']\n  then\n    v['tags'] = table.concat(v['tags'], ',')\n  end\n  return v\nend\n",
           "FunctionName": "preprocess",
           "Workers": 128
         },
