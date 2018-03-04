@@ -3,6 +3,7 @@ stdenv.mkDerivation {
   name = "nix-cage-shell";
   buildInputs = [
     influxdb
+    nsq
     go
     gocode
     glide
