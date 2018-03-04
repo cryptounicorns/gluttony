@@ -91,14 +91,14 @@ type cTag struct {
 	aliasTag       string
 	actualAliasTag string
 	param          string
-	typeof         tagType
 	keys           *cTag // only populated when using tag's 'keys' and 'endkeys' for map key validation
 	next           *cTag
+	fn             FuncCtx
+	typeof         tagType
 	hasTag         bool
 	hasAlias       bool
 	hasParam       bool // true if parameter used eg. eq= where the equal sign has been set
 	isBlockEnd     bool // indicates the current tag represents the last validation in the block
-	fn             FuncCtx
 }
 
 func (v *Validate) extractStructCache(current reflect.Value, sName string) *cStruct {
@@ -315,6 +315,23 @@ func (v *Validate) parseFieldTagsRecursive(tag string, fieldName string, alias s
 			current.isBlockEnd = true
 		}
 	}
-
 	return
+}
+
+func (v *Validate) fetchCacheTag(tag string) *cTag {
+	// find cached tag
+	ctag, found := v.tagCache.Get(tag)
+	if !found {
+		v.tagCache.lock.Lock()
+		defer v.tagCache.lock.Unlock()
+
+		// could have been multiple trying to access, but once first is done this ensures tag
+		// isn't parsed again.
+		ctag, found = v.tagCache.Get(tag)
+		if !found {
+			ctag, _ = v.parseFieldTagsRecursive(tag, "", "", false)
+			v.tagCache.Set(tag, ctag)
+		}
+	}
+	return ctag
 }

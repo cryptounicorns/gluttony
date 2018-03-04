@@ -106,6 +106,14 @@ func (a openAuthorizer) AuthorizeSeriesWrite(database string, measurement []byte
 // AuthorizeSeriesRead allows any query to execute.
 func (a openAuthorizer) AuthorizeQuery(_ string, _ *influxql.Query) error { return nil }
 
+// AuthorizerIsOpen returns true if the provided Authorizer is guaranteed to
+// authorize anything. A nil Authorizer returns true for this function, and this
+// function should be preferred over directly checking if an Authorizer is nil
+// or not.
+func AuthorizerIsOpen(a Authorizer) bool {
+	return a == nil || a == OpenAuthorizer
+}
+
 // ExecutionOptions contains the options for executing a query.
 type ExecutionOptions struct {
 	// The database the query is running against.
@@ -374,7 +382,7 @@ LOOP:
 
 		// Log each normalized statement.
 		if !ctx.Quiet {
-			e.Logger.Info(stmt.String())
+			e.Logger.Info("Executing query", zap.Stringer("query", stmt))
 		}
 
 		// Send any other statements to the underlying statement executor.
@@ -508,6 +516,8 @@ func (q *QueryTask) monitor(fn QueryMonitorFunc) {
 func (q *QueryTask) close() {
 	q.mu.Lock()
 	if q.status != KilledTask {
+		// Set the status to killed to prevent closing the channel twice.
+		q.status = KilledTask
 		close(q.closing)
 	}
 	q.mu.Unlock()

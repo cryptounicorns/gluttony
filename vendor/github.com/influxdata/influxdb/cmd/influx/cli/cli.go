@@ -15,6 +15,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -50,6 +51,7 @@ type CommandLine struct {
 	Import          bool
 	Chunked         bool
 	ChunkSize       int
+	NodeID          int
 	Quit            chan struct{}
 	IgnoreSignals   bool // Ignore signals normally caught by this process (used primarily for testing)
 	ForceTTY        bool // Force the CLI to act as if it were connected to a TTY
@@ -197,9 +199,20 @@ func (c *CommandLine) Run() error {
 	c.Version()
 
 	// Only load/write history if HOME environment variable is set.
+	var historyDir string
+	if runtime.GOOS == "windows" {
+		if userDir := os.Getenv("USERPROFILE"); userDir != "" {
+			historyDir = userDir
+		}
+	}
+
 	if homeDir := os.Getenv("HOME"); homeDir != "" {
-		// Attempt to load the history file.
-		c.historyFilePath = filepath.Join(homeDir, ".influx_history")
+		historyDir = homeDir
+	}
+
+	// Attempt to load the history file.
+	if historyDir != "" {
+		c.historyFilePath = filepath.Join(historyDir, ".influx_history")
 		if historyFile, err := os.Open(c.historyFilePath); err == nil {
 			c.Line.ReadHistory(historyFile)
 			historyFile.Close()
@@ -284,6 +297,8 @@ func (c *CommandLine) ParseCommand(cmd string) error {
 			}
 		case "use":
 			c.use(cmd)
+		case "node":
+			c.node(cmd)
 		case "insert":
 			return c.Insert(cmd)
 		case "clear":
@@ -513,6 +528,26 @@ func (c *CommandLine) retentionPolicyExists(db, rp string) bool {
 	return true
 }
 
+func (c *CommandLine) node(cmd string) {
+	args := strings.Split(strings.TrimSuffix(strings.TrimSpace(cmd), ";"), " ")
+	if len(args) != 2 {
+		fmt.Println("Improper number of arguments for 'node' command, requires exactly one.")
+		return
+	}
+
+	if args[1] == "clear" {
+		c.NodeID = 0
+		return
+	}
+
+	id, err := strconv.Atoi(args[1])
+	if err != nil {
+		fmt.Printf("Unable to parse node id from %s. Must be an integer or 'clear'.\n", args[1])
+		return
+	}
+	c.NodeID = id
+}
+
 // SetChunkSize sets the chunk size
 // 0 sets it back to the default
 func (c *CommandLine) SetChunkSize(cmd string) {
@@ -711,6 +746,7 @@ func (c *CommandLine) query(query string) client.Query {
 		Database:  c.Database,
 		Chunked:   c.Chunked,
 		ChunkSize: c.ChunkSize,
+		NodeID:    c.NodeID,
 	}
 }
 
@@ -1020,8 +1056,7 @@ func (c *CommandLine) help() {
         show field keys       show field key information
 
         A full list of influxql commands can be found at:
-        https://docs.influxdata.com/influxdb/latest/query_language/spec/
-`)
+        https://docs.influxdata.com/influxdb/latest/query_language/spec/`)
 }
 
 func (c *CommandLine) history() {
@@ -1031,6 +1066,9 @@ func (c *CommandLine) history() {
 }
 
 func (c *CommandLine) saveHistory() {
+	if c.historyFilePath == "" {
+		return
+	}
 	if historyFile, err := os.Create(c.historyFilePath); err != nil {
 		fmt.Printf("There was an error writing history file: %s\n", err)
 	} else {
@@ -1091,9 +1129,7 @@ func (c *CommandLine) gopher() {
                                          o:   -h///++////-.
                                         /:   .o/
                                        //+  'y
-                                       ./sooy.
-
-`)
+                                       ./sooy.`)
 }
 
 // Version prints the CLI version.

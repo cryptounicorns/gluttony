@@ -483,7 +483,10 @@ func (f *FileStore) Open() error {
 		go func(idx int, file *os.File) {
 			start := time.Now()
 			df, err := NewTSMReader(file)
-			f.logger.Info(fmt.Sprintf("%s (#%d) opened in %v", file.Name(), idx, time.Since(start)))
+			f.logger.Info("Opened file",
+				zap.String("path", file.Name()),
+				zap.Int("id", idx),
+				zap.Duration("duration", time.Since(start)))
 
 			if err != nil {
 				readerC <- &res{r: df, err: fmt.Errorf("error opening memory map for file %s: %v", file.Name(), err)}
@@ -513,7 +516,7 @@ func (f *FileStore) Open() error {
 		}
 
 	}
-	f.lastModified = time.Unix(0, lm)
+	f.lastModified = time.Unix(0, lm).UTC()
 	close(readerC)
 
 	sort.Sort(tsmReaders(f.files))
@@ -664,7 +667,7 @@ func (f *FileStore) replace(oldFiles, newFiles []string, updatedFn func(r []TSMF
 
 		// Keep track of the new mod time
 		if stat, err := fd.Stat(); err == nil {
-			if stat.ModTime().UTC().After(maxTime) {
+			if maxTime.IsZero() || stat.ModTime().UTC().After(maxTime) {
 				maxTime = stat.ModTime().UTC()
 			}
 		}
@@ -815,37 +818,6 @@ func (f *FileStore) BlockCount(path string, idx int) int {
 	return 0
 }
 
-// walkFiles calls fn for each file in filestore in parallel.
-func (f *FileStore) walkFiles(fn func(f TSMFile) error) error {
-	// Copy the current TSM files to prevent a slow walker from
-	// blocking other operations.
-	f.mu.RLock()
-	files := make([]TSMFile, len(f.files))
-	copy(files, f.files)
-	f.mu.RUnlock()
-
-	// struct to hold the result of opening each reader in a goroutine
-	errC := make(chan error, len(files))
-	for _, f := range files {
-		go func(tsm TSMFile) {
-			if err := fn(tsm); err != nil {
-				errC <- fmt.Errorf("file %s: %s", tsm.Path(), err)
-				return
-			}
-
-			errC <- nil
-		}(f)
-	}
-
-	for i := 0; i < cap(errC); i++ {
-		res := <-errC
-		if res != nil {
-			return res
-		}
-	}
-	return nil
-}
-
 // We need to determine the possible files that may be accessed by this query given
 // the time range.
 func (f *FileStore) cost(key []byte, min, max int64) query.IteratorCost {
@@ -957,7 +929,7 @@ func (f *FileStore) locations(key []byte, t int64, ascending bool) []*location {
 // CreateSnapshot creates hardlinks for all tsm and tombstone files
 // in the path provided.
 func (f *FileStore) CreateSnapshot() (string, error) {
-	f.traceLogger.Info(fmt.Sprintf("Creating snapshot in %s", f.dir))
+	f.traceLogger.Info("Creating snapshot", zap.String("dir", f.dir))
 	files := f.Files()
 
 	f.mu.Lock()
@@ -1123,23 +1095,6 @@ func (c *KeyCursor) Close() {
 	c.buf = nil
 	c.seeks = nil
 	c.current = nil
-}
-
-// hasOverlappingBlocks returns true if blocks have overlapping time ranges.
-// This result is computed once and stored as the "duplicates" field.
-func (c *KeyCursor) hasOverlappingBlocks() bool {
-	if len(c.seeks) == 0 {
-		return false
-	}
-
-	for i := 1; i < len(c.seeks); i++ {
-		prev := c.seeks[i-1]
-		cur := c.seeks[i]
-		if prev.entry.MaxTime >= cur.entry.MinTime {
-			return true
-		}
-	}
-	return false
 }
 
 // seek positions the cursor at the given time.
@@ -1323,12 +1278,12 @@ func (p *purger) purge() {
 			for k, v := range p.files {
 				if !v.InUse() {
 					if err := v.Close(); err != nil {
-						p.logger.Info(fmt.Sprintf("purge: close file: %v", err))
+						p.logger.Info("Purge: close file", zap.Error(err))
 						continue
 					}
 
 					if err := v.Remove(); err != nil {
-						p.logger.Info(fmt.Sprintf("purge: remove file: %v", err))
+						p.logger.Info("Purge: remove file", zap.Error(err))
 						continue
 					}
 					delete(p.files, k)
@@ -1352,11 +1307,6 @@ type tsmReaders []TSMFile
 func (a tsmReaders) Len() int           { return len(a) }
 func (a tsmReaders) Less(i, j int) bool { return a[i].Path() < a[j].Path() }
 func (a tsmReaders) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-
-type stream struct {
-	c chan seriesKey
-	v seriesKey
-}
 
 type seriesKey struct {
 	key []byte

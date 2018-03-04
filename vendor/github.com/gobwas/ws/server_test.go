@@ -13,6 +13,7 @@ import (
 	"net/http/httputil"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -589,22 +590,19 @@ func dumpRequest(req *http.Request) []byte {
 }
 
 func dumpResponse(res *http.Response) []byte {
-	cleanClose := !res.Close
-	if cleanClose {
+	if !res.Close {
 		for _, v := range res.Header[headerConnection] {
 			if v == "close" {
-				cleanClose = false
+				res.Close = true
 				break
 			}
 		}
 	}
-
 	bts, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		panic(err)
 	}
-
-	if cleanClose {
+	if !res.Close {
 		bts = bytes.Replace(bts, []byte("Connection: close\r\n"), nil, -1)
 	}
 
@@ -665,7 +663,17 @@ func (r *recorder) Bytes() []byte {
 	if r.hijacked {
 		return r.ResponseRecorder.Body.Bytes()
 	}
-	return dumpResponse(r.Result())
+
+	// TODO(gobwas): remove this when support for go 1.7 will end.
+	resp := r.Result()
+	cs := strings.TrimSpace(resp.Header.Get("Content-Length"))
+	if n, err := strconv.ParseInt(cs, 10, 64); err == nil {
+		resp.ContentLength = n
+	} else {
+		resp.ContentLength = -1
+	}
+
+	return dumpResponse(resp)
 }
 
 func (r *recorder) Hijack() (conn net.Conn, brw *bufio.ReadWriter, err error) {
@@ -739,20 +747,22 @@ func mustMakeResponse(code int, headers http.Header) *http.Response {
 }
 
 func mustMakeErrResponse(code int, err error, headers http.Header) *http.Response {
+	// Body text.
+	body := err.Error()
+
 	res := &http.Response{
 		StatusCode: code,
 		Status:     http.StatusText(code),
 		Header: http.Header{
-			"Content-Type":           []string{"text/plain; charset=utf-8"},
-			"X-Content-Type-Options": []string{"nosniff"},
+			"Content-Type": []string{"text/plain; charset=utf-8"},
 		},
 		ProtoMajor:    1,
 		ProtoMinor:    1,
-		ContentLength: -1,
+		ContentLength: int64(len(body)),
 	}
-	if err != nil {
-		res.Body = ioutil.NopCloser(strings.NewReader(err.Error() + "\n"))
-	}
+	res.Body = ioutil.NopCloser(
+		strings.NewReader(body),
+	)
 	for k, v := range headers {
 		res.Header[k] = v
 	}

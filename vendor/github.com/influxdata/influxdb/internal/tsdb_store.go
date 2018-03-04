@@ -14,6 +14,7 @@ import (
 // TSDBStoreMock is a mockable implementation of tsdb.Store.
 type TSDBStoreMock struct {
 	BackupShardFn             func(id uint64, since time.Time, w io.Writer) error
+	BackupSeriesFileFn        func(database string, w io.Writer) error
 	ExportShardFn             func(id uint64, ExportStart time.Time, ExportEnd time.Time, w io.Writer) error
 	CloseFn                   func() error
 	CreateShardFn             func(database, policy string, shardID uint64, enabled bool) error
@@ -50,6 +51,9 @@ type TSDBStoreMock struct {
 
 func (s *TSDBStoreMock) BackupShard(id uint64, since time.Time, w io.Writer) error {
 	return s.BackupShardFn(id, since, w)
+}
+func (s *TSDBStoreMock) BackupSeriesFile(database string, w io.Writer) error {
+	return s.BackupSeriesFileFn(database, w)
 }
 func (s *TSDBStoreMock) ExportShard(id uint64, ExportStart time.Time, ExportEnd time.Time, w io.Writer) error {
 	return s.ExportShardFn(id, ExportStart, ExportEnd, w)

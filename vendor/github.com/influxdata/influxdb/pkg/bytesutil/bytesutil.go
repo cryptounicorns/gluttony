@@ -11,12 +11,54 @@ func Sort(a [][]byte) {
 	sort.Sort(byteSlices(a))
 }
 
+// SortDedup sorts the byte slice a and removes duplicates. The ret
+func SortDedup(a [][]byte) [][]byte {
+	if len(a) < 2 {
+		return a
+	}
+
+	Sort(a)
+
+	i, j := 0, 1
+	for j < len(a) {
+		if !bytes.Equal(a[j-1], a[j]) {
+			a[i] = a[j-1]
+			i++
+		}
+		j++
+	}
+	a[i] = a[j-1]
+	i++
+	return a[:i]
+}
+
 func IsSorted(a [][]byte) bool {
 	return sort.IsSorted(byteSlices(a))
 }
 
+// SearchBytes performs a binary search for x in the sorted slice a.
 func SearchBytes(a [][]byte, x []byte) int {
-	return sort.Search(len(a), func(i int) bool { return bytes.Compare(a[i], x) >= 0 })
+	// Define f(i) => bytes.Compare(a[i], x) < 0
+	// Define f(-1) == false and f(n) == true.
+	// Invariant: f(i-1) == false, f(j) == true.
+	i, j := 0, len(a)
+	for i < j {
+		h := int(uint(i+j) >> 1) // avoid overflow when computing h
+		// i ≤ h < j
+		if bytes.Compare(a[h], x) < 0 {
+			i = h + 1 // preserves f(i-1) == false
+		} else {
+			j = h // preserves f(j) == true
+		}
+	}
+	// i == j, f(i-1) == false, and f(j) (= f(i)) == true  =>  answer is i.
+	return i
+}
+
+// Contains returns true if x is an element of the sorted slice a.
+func Contains(a [][]byte, x []byte) bool {
+	n := SearchBytes(a, x)
+	return n < len(a) && bytes.Equal(a[n], x)
 }
 
 // SearchBytesFixed searches a for x using a binary search.  The size of a must be a multiple of
@@ -110,7 +152,7 @@ func CloneSlice(a [][]byte) [][]byte {
 // Pack converts a sparse array to a dense one.  It removes sections of a containing
 // runs of val of length width.  The returned value is a subslice of a.
 func Pack(a []byte, width int, val byte) []byte {
-	var i, j, iStart, jStart, end int
+	var i, j, jStart, end int
 
 	fill := make([]byte, width)
 	for i := 0; i < len(fill); i++ {
@@ -124,7 +166,6 @@ func Pack(a []byte, width int, val byte) []byte {
 
 	for i < len(a) {
 		// Find the next gap to remove
-		iStart = i
 		for i < len(a) && a[i] == val {
 			i += width
 		}
@@ -140,7 +181,6 @@ func Pack(a []byte, width int, val byte) []byte {
 
 		// Move the non-gap over the section to remove.
 		copy(a[end:], a[jStart:j])
-		i = iStart + len(a[jStart:j])
 		end += j - jStart
 		i = j
 	}

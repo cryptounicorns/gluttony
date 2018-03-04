@@ -1,5 +1,5 @@
 hash: 48367910638b42f89ddc6624e64e184145f3f593bf5f6132424669ed3b4a96d9
-updated: 2017-12-18T19:13:08.639957782Z
+updated: 2018-03-04T21:48:22.282294971Z
 imports:
 - name: github.com/bitly/go-nsq
   version: 8c1ff52dff6fd3ecc19c418649bc643b18e862fc
@@ -8,17 +8,19 @@ imports:
   subpackages:
   - closer
 - name: github.com/corpix/formats
-  version: 9a60a2b6efca3a5264cfbece220df11e8a2813f6
+  version: 44ae7d799273aeda646d30844a33cb803990ef3d
 - name: github.com/corpix/loggers
-  version: 69c4a7d3244f0509086d4080e8898376aeb95e09
+  version: 6428ebad5a5ef7a300d5dc269a99978de598aace
   subpackages:
   - logger/logrus
   - logger/prefixwrapper
 - name: github.com/corpix/lua
-  version: 4959ea18994463fc699717fe90a3ed32ebf42659
+  version: 69f0827608ebeb93aca7b35d5583eb3dce15fba1
   subpackages:
   - mapper
   - pool
+- name: github.com/corpix/reflect
+  version: 762e8fbf1f83a7e3e4ee34b7732a776b478ffc3f
 - name: github.com/corpix/stores
   version: 6e928963c62c49aad5f322e0af61550d7da921ea
   subpackages:
@@ -28,7 +30,7 @@ imports:
 - name: github.com/corpix/time
   version: 9adb218ff5319d3f3e3d5a44fe0cb5d4880762f4
 - name: github.com/cryptounicorns/queues
-  version: 1f4b2b2001b53e46d69d946252fafbb8094c29ec
+  version: e53f25b5de5db3f36c664432ee7913a192584ab1
   subpackages:
   - consumer
   - errors
@@ -41,17 +43,17 @@ imports:
   - queue/websocket
   - result
 - name: github.com/davecgh/go-spew
-  version: ecdeabc65495df2dec95d7c4a4c3e021903035e5
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
   subpackages:
   - spew
 - name: github.com/eapache/go-resiliency
-  version: b1fe83b5b03f624450823b751b662259ffc6af70
+  version: ef9aaa7ea8bd2448429af1a77cf41b2b3b34bdd6
   subpackages:
   - breaker
 - name: github.com/eapache/go-xerial-snappy
   version: bb955e01b9346ac19dc29eb16586c90ded99a98c
 - name: github.com/eapache/queue
-  version: 44cc805cf13205b55f69e14bcb69867d1ae92f98
+  version: 093482f3f8ce946c05bcba64badd2c82369e084d
 - name: github.com/go-playground/locales
   version: e4cbcb5d0652150d40ad0646651076b6bd2be4f6
   subpackages:
@@ -59,24 +61,24 @@ imports:
 - name: github.com/go-playground/universal-translator
   version: 71201497bace774495daed26a3874fd339e0b538
 - name: github.com/go-playground/validator
-  version: b1f51f36f1c98cc97f777d6fc9d4b05eaa0cabb5
+  version: 150fe5b6a4ccc9cd6ffdbf5d184b67fbea75efcc
 - name: github.com/gobwas/httphead
-  version: 01c9b01b368a438f615030bbbd5e4f9e0023e15c
+  version: 2c6c146eadee0b69f856f87e3e9f1d0cd6aad2f5
 - name: github.com/gobwas/pool
-  version: 32dbaa12caca20fad12253c30591227e04f62cdd
+  version: e294a5482d9a8523f8e6b2744ea2185083c838af
   subpackages:
   - pbufio
   - pbytes
 - name: github.com/gobwas/ws
-  version: 915eed3240022c5265584c55032ef1b8c8f84168
+  version: c8595a6266aa8b97b14e7406cf059cd240b34100
   subpackages:
   - wsutil
 - name: github.com/golang/snappy
   version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
 - name: github.com/imdario/mergo
-  version: 7fe0c75c13abdee74b09fcacef5ea1c6bba6a874
+  version: 0d4b488675fdec1dde48751b05ab530cf0b630e1
 - name: github.com/influxdata/influxdb
-  version: b287c191f362e7313aae0fa08c19b787076ad530
+  version: 044ca2ac892d61bf526c8e3722b2e0b4f19c84d7
   subpackages:
   - client/v2
   - models
@@ -88,21 +90,21 @@ imports:
   subpackages:
   - ast
 - name: github.com/pierrec/lz4
-  version: 08c27939df1bd95e881e2c2367a749964ad1fceb
+  version: ed8d4cc3b461464e69798080a0092bd028910298
 - name: github.com/pierrec/xxHash
   version: a0006b13c722f7f12368c00a3d3c2ae8a999a0c6
   subpackages:
   - xxHash32
 - name: github.com/rcrowley/go-metrics
-  version: e181e095bae94582363434144c61a9653aff6e50
+  version: 8732c616f52954686704c8645fe1a9d59e9df7c1
 - name: github.com/Shopify/sarama
-  version: 3b1b38866a79f06deddf0487d5c27ba0697ccd65
+  version: eae91468c24263f06ae73dce45eb26252c73b1d6
 - name: github.com/sirupsen/logrus
-  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+  version: f4ee69125072b22721efbe639bd0da9c9d19b8cc
 - name: github.com/urfave/cli
-  version: 39908eb08fee7c10d842622a114a5c133fb0a3c6
+  version: 8e01ec4cd3e2d84ab2fe90d8210528ffbb06d8ff
 - name: github.com/yuin/gopher-lua
-  version: 3d9c8196b0034e3c36481248e02dc39953bcc849
+  version: 7d7bc8747e3f614c5c587729a341fe7d8903cdb8
   subpackages:
   - ast
   - parse
@@ -116,5 +118,5 @@ imports:
   subpackages:
   - unix
 - name: gopkg.in/yaml.v2
-  version: 287cf08546ab5e7e37d55a84f7ed3fd1db036de5
+  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
 testImports: []
