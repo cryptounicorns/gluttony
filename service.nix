@@ -48,7 +48,7 @@ in {
     systemd.services."${name}" = {
       enable = true;
 
-      wants    = [ "nsqd.service" "influxdb.service" ];
+      after    = [ "nsqd.service" "influxdb.service" ];
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
