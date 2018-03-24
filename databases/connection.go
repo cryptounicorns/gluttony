@@ -8,6 +8,7 @@ import (
 	"github.com/corpix/loggers"
 	"github.com/corpix/loggers/logger/prefixwrapper"
 
+	"github.com/cryptounicorns/gluttony/databases/database/clickhouse"
 	"github.com/cryptounicorns/gluttony/databases/database/influxdb"
 	"github.com/cryptounicorns/gluttony/databases/errors"
 )
@@ -27,6 +28,11 @@ func Connect(c Config, l loggers.Logger) (Connection, error) {
 	case influxdb.Name:
 		return influxdb.Connect(
 			*c.Influxdb,
+			log,
+		)
+	case "clickhouse":
+		return clickhouse.Connect(
+			*c.Clickhouse,
 			log,
 		)
 	default:
