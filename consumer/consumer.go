@@ -6,11 +6,11 @@ import (
 	"github.com/corpix/effects/closer"
 	"github.com/corpix/formats"
 	"github.com/corpix/loggers"
+
+	"github.com/cryptounicorns/gluttony/databases"
 	"github.com/cryptounicorns/queues"
 	"github.com/cryptounicorns/queues/consumer"
 	"github.com/cryptounicorns/queues/result"
-
-	"github.com/cryptounicorns/gluttony/databases"
 )
 
 type PrepareForDatabaseFn = func(v interface{}) (interface{}, error)

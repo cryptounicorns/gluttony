@@ -282,8 +282,7 @@ retry:
 
 func (d *InfluxDB) Close() error {
 	close(d.done)
-
-	return nil
+	return d.client.Close()
 }
 
 func FromConfig(c Config, cl client.Client, l loggers.Logger) (*InfluxDB, error) {
