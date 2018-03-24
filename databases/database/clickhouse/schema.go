@@ -3,17 +3,17 @@ package clickhouse
 const (
 	dbCreate = `
 CREATE TABLE IF NOT EXISTS datapoints (
-	country_code FixedString(2),
-	os_id        UInt8,
-	browser_id   UInt8,
-	categories   Array(Int16),
-	action_day   Date,
-	action_time  DateTime
+	timestamp UInt64,
+	open      UInt64,
+	high      UInt64,
+	low       UInt64,
+	close     UInt64,
+	volume    UInt64,
 ) engine=Memory
 `
 
 	dbInsert = `
-INSERT INTO datapoints (country_code, os_id, browser_id, categories, action_day, action_time)
+INSERT INTO datapoints (timestamp, open, high, low, close, volume)
 VALUES (?, ?, ?, ?, ?, ?)
 `
 )
