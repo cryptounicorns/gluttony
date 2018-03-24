@@ -6,8 +6,8 @@ stdenv.mkDerivation {
     nsq
     go
     gocode
-    glide
     godef
+    dep
   ];
   shellHook = ''
     export GOPATH=~/projects
