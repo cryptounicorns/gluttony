@@ -4,13 +4,16 @@ import "time"
 
 type Config struct {
 	Host string
-	Port int
+	Port string
 
 	User string
 	Pass string
 
 	Compress bool
 	Debug    bool
+
+	ReadTimeout  int64
+	WriteTimeout int64
 
 	FlushInterval time.Duration
 }
