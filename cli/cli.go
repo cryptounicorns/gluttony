@@ -25,9 +25,7 @@ var (
 
 // Prerun configures application before running and executing from urfave/cli.
 func Prerun(c *cli.Context) error {
-	var err error
-
-	err = initConfig(c)
+	err := initConfig(c)
 	if err != nil {
 		return err
 	}
@@ -71,28 +69,18 @@ func initConfig(ctx *cli.Context) error {
 	)
 
 	Config, err = config.FromFile(path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // initLogger inits logger component with
 // parameters from config.
 func initLogger(c *cli.Context) error {
-	var (
-		err error
-	)
+	var err error
 
 	if c.Bool("debug") {
 		Config.Logger.Level = "debug"
 	}
 
 	log, err = appLogger.FromConfig(Config.Logger)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

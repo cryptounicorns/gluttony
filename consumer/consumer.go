@@ -32,14 +32,11 @@ func PipeConsumerToDatabaseWith(
 	)
 
 	go func() {
-		select {
-		case <-ctx.Done():
-			err := closers.Close()
-			if err != nil {
-				l.Error(err)
-			}
-			return
+		<-ctx.Done()
+		if err := closers.Close(); err != nil {
+			l.Error(err)
 		}
+		return
 	}()
 
 	f, err = formats.New(c.Format)

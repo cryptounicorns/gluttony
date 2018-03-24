@@ -48,11 +48,7 @@ func (i *Input) Run(ctx context.Context) error {
 		d,
 		log,
 	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (i *Input) Close() error {

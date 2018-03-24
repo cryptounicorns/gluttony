@@ -24,7 +24,7 @@ var (
 
 // Config represents application configuration structure.
 type Config struct {
-	Logger logger.Config  `validate:"required"`
+	Logger logger.Config `validate:"required"`
 	Inputs []input.Config
 }
 
@@ -55,11 +55,7 @@ func FromReader(f formats.Format, r io.Reader) (Config, error) {
 	}
 
 	err = validate.Struct(c)
-	if err != nil {
-		return c, err
-	}
-
-	return c, nil
+	return c, err
 }
 
 // FromFile returns parsed config data from file in `path`.
@@ -82,9 +78,5 @@ func FromFile(path string) (Config, error) {
 	defer r.Close()
 
 	c, err = FromReader(f, r)
-	if err != nil {
-		return c, err
-	}
-
-	return c, nil
+	return c, err
 }
